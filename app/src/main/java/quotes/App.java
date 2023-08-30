@@ -4,11 +4,15 @@
 package quotes;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import static com.google.gson.GsonBuilder.*;
 
 public class App {
 
@@ -17,20 +21,40 @@ public class App {
         return "";
     }
 
-    public static void main(String[] args)  {
-         Gson gson = new Gson();
-         Quote[] q;
-         try(BufferedReader bufferedReader = new BufferedReader(new FileReader("C:\\Users\\USER\\newforGradle\\quotes\\app\\src\\main\\resources\\recentquotes.json"))) {
-            q= gson.fromJson(bufferedReader, Quote[].class);
-            if(q.length >0 && q!=null){
-                int random = (int)Math.floor(Math.random() * (q.length - 0 + 1) + 0);
-                System.out.println(q[random]);
-            }
+    public static void main(String[] args) throws IOException {
 
-         } catch (IOException | JsonParseException e) {
-             e.printStackTrace();
-             throw new RuntimeException(e);
-         }
+        URL pokeUrl= new URL("https://favqs.com/api/qotd");
+        HttpURLConnection pokeUrlConnection = (HttpURLConnection) pokeUrl.openConnection();
+
+        pokeUrlConnection.setRequestMethod("GET");
+
+        InputStreamReader reader = new InputStreamReader(pokeUrlConnection.getInputStream());
+        BufferedReader bufferedReader=new BufferedReader(reader);
+        String pokeData=bufferedReader.readLine();
+        System.out.println(pokeData);
+
+        Gson gson=new GsonBuilder().setPrettyPrinting().create();
+        QouteWrapper ditto= gson.fromJson(pokeData, QouteWrapper.class);
+
+        File dittoFile = new File("app/src/main/resources/quoteFromApi.json");
+
+     FileWriter writeToDittoFile= new FileWriter(dittoFile);
+            gson.toJson(ditto, writeToDittoFile);
+
+//
+//         Gson gson = new Gson();
+//         Quote[] q;
+//         try(BufferedReader bufferedReader2 = new BufferedReader(new FileReader("C:\\Users\\USER\\newforGradle\\quotes\\app\\src\\main\\resources\\recentquotes.json"))) {
+//            q= gson.fromJson(bufferedReader2, Quote[].class);
+//            if(q.length >0 && q!=null){
+//                int random = (int)Math.floor(Math.random() * (q.length - 0 + 1) + 0);
+//                System.out.println(q[random]);
+//            }
+//
+//         } catch (IOException | JsonParseException e) {
+//             e.printStackTrace();
+//             throw new RuntimeException(e);
+//         }
 
 
     }
