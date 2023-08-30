@@ -23,38 +23,70 @@ public class App {
 
     public static void main(String[] args) throws IOException {
 
+
+         Gson gson = new Gson();
+         Quote[] q;
+         try(BufferedReader bufferedReader2 = new BufferedReader(new FileReader("app/src/main/resources/recentquotes.json"))) {
+            q= gson.fromJson(bufferedReader2, Quote[].class);
+            if(q.length >0 && q!=null){
+                int random = (int)Math.floor(Math.random() * (q.length - 0 + 1) + 0);
+                System.out.println(q[random]);
+            }
+
+         } catch (IOException | JsonParseException e) {
+             e.printStackTrace();
+             throw new RuntimeException(e);
+         }
+
+
+        System.out.println(" ");
+        System.out.println("Lab 9");
+        System.out.println(" ");
+
+        //fetch api
         URL pokeUrl= new URL("https://favqs.com/api/qotd");
+       //open Connection
         HttpURLConnection pokeUrlConnection = (HttpURLConnection) pokeUrl.openConnection();
-
+        //set method
         pokeUrlConnection.setRequestMethod("GET");
-
+        //read data from api
         InputStreamReader reader = new InputStreamReader(pokeUrlConnection.getInputStream());
         BufferedReader bufferedReader=new BufferedReader(reader);
         String pokeData=bufferedReader.readLine();
-        System.out.println(pokeData);
+        //print quote in json format
+       // System.out.println(pokeData);
 
-        Gson gson=new GsonBuilder().setPrettyPrinting().create();
-        QouteWrapper ditto= gson.fromJson(pokeData, QouteWrapper.class);
+        //format data from api in json,readeble way
+        gson=new GsonBuilder().setPrettyPrinting().create();
+        QouteWrapper newQuote = gson.fromJson(pokeData, QouteWrapper.class);
+        //path & name of new file
+        File filePth = new File("app/src/main/resources/quoteFromApi.json");
 
-        File dittoFile = new File("app/src/main/resources/quoteFromApi.json");
+        try(FileWriter fileWriter= new FileWriter(filePth)){
 
-     FileWriter writeToDittoFile= new FileWriter(dittoFile);
-            gson.toJson(ditto, writeToDittoFile);
+          gson.toJson(newQuote, fileWriter);
 
-//
-//         Gson gson = new Gson();
-//         Quote[] q;
-//         try(BufferedReader bufferedReader2 = new BufferedReader(new FileReader("C:\\Users\\USER\\newforGradle\\quotes\\app\\src\\main\\resources\\recentquotes.json"))) {
-//            q= gson.fromJson(bufferedReader2, Quote[].class);
-//            if(q.length >0 && q!=null){
-//                int random = (int)Math.floor(Math.random() * (q.length - 0 + 1) + 0);
-//                System.out.println(q[random]);
-//            }
-//
-//         } catch (IOException | JsonParseException e) {
-//             e.printStackTrace();
-//             throw new RuntimeException(e);
-//         }
+
+        }catch (IOException | JsonParseException e) {
+
+         e.printStackTrace();
+         throw new RuntimeException(e);
+
+        }
+        QouteWrapper qw;
+        try(BufferedReader bufferedReader3 = new BufferedReader(new FileReader("app/src/main/resources/quoteFromApi.json"))) {
+             qw=gson.fromJson(bufferedReader3, QouteWrapper.class);
+
+                System.out.println(qw);
+
+
+        } catch (IOException | JsonParseException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+
+
 
 
     }
