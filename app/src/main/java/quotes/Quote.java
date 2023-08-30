@@ -9,6 +9,32 @@ public class Quote {
     private String likes;
     private String text;
 
+    private int id;
+    private boolean isDialogue;
+    private boolean isPrivate;
+
+
+
+
+    public Quote(ArrayList<String> tags,int id, boolean isDialogue,  boolean isPrivate) {
+        this.tags = tags;
+        this.id = id;
+        this.isDialogue = isDialogue;
+        this.isPrivate = isPrivate;
+    }
+
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isDialogue() {
+        return isDialogue;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
 
     public Quote(ArrayList<String> tags, String author, String likes, String text) {
         this.tags = tags;
