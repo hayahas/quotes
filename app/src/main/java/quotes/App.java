@@ -11,8 +11,12 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.gson.GsonBuilder.*;
+import static quotes.QouteWrapper.getQuotesFromApi;
+import static quotes.QouteWrapper.saveQuotesToJson;
 
 public class App {
 
@@ -24,67 +28,47 @@ public class App {
     public static void main(String[] args) throws IOException {
 
 
-         Gson gson = new Gson();
-         Quote[] q;
-         try(BufferedReader bufferedReader2 = new BufferedReader(new FileReader("app/src/main/resources/recentquotes.json"))) {
+        Gson gson = new Gson();
+        Quote[] q;
+        try(BufferedReader bufferedReader2 = new BufferedReader(new FileReader("app/src/main/resources/recentquotes.json"))) {
             q= gson.fromJson(bufferedReader2, Quote[].class);
             if(q.length >0 && q!=null){
                 int random = (int)Math.floor(Math.random() * (q.length - 0 + 1) + 0);
                 System.out.println(q[random]);
             }
 
-         } catch (IOException | JsonParseException e) {
-             e.printStackTrace();
-             throw new RuntimeException(e);
-         }
+        } catch (IOException | JsonParseException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
 
 
         System.out.println(" ");
         System.out.println("Lab 9");
         System.out.println(" ");
 
-        //fetch api
-        URL pokeUrl= new URL("https://favqs.com/api/qotd");
-       //open Connection
-        HttpURLConnection pokeUrlConnection = (HttpURLConnection) pokeUrl.openConnection();
-        //set method
-        pokeUrlConnection.setRequestMethod("GET");
-        //read data from api
-        InputStreamReader reader = new InputStreamReader(pokeUrlConnection.getInputStream());
-        BufferedReader bufferedReader=new BufferedReader(reader);
-        String pokeData=bufferedReader.readLine();
-        //print quote in json format
-       // System.out.println(pokeData);
-
-        //format data from api in json,readeble way
-        gson=new GsonBuilder().setPrettyPrinting().create();
-        QouteWrapper newQuote = gson.fromJson(pokeData, QouteWrapper.class);
-        //path & name of new file
-        File filePth = new File("app/src/main/resources/quoteFromApi.json");
-
-        try(FileWriter fileWriter= new FileWriter(filePth)){
-
-          gson.toJson(newQuote, fileWriter);
+//        QouteWrapper qw =new QouteWrapper();
+//        System.out.println(qw.getQuotesFromApi());
+//        qw.saveQuotesToJson(qw.getQuotesFromApi().getQuote(),"app/src/main/resources/quoteFromApi.json");
 
 
-        }catch (IOException | JsonParseException e) {
+        List<Quote> quoteList = new ArrayList<>();
+        QouteWrapper newQuoteWrapper = getQuotesFromApi();
+        for (int i = 0; i < 10; i++) {
 
-         e.printStackTrace();
-         throw new RuntimeException(e);
-
-        }
-        QouteWrapper qw;
-        try(BufferedReader bufferedReader3 = new BufferedReader(new FileReader("app/src/main/resources/quoteFromApi.json"))) {
-             qw=gson.fromJson(bufferedReader3, QouteWrapper.class);
-
-                System.out.println(qw);
-
-
-        } catch (IOException | JsonParseException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            Quote newQuote = newQuoteWrapper.getQuote();
+            quoteList.add(newQuote);
         }
 
+
+        if(quoteList.size() >0 && quoteList!=null) {
+            int random = (int) Math.floor(Math.random() * (quoteList.size() + 1) + 0);
+
+            System.out.println(newQuoteWrapper.getQuotesFromApi());
+        }
+
+
+        saveQuotesToJson(quoteList, "app/src/main/resources/quoteFromApi.json");
 
 
 

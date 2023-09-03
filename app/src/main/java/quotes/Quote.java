@@ -22,8 +22,8 @@ public class Quote {
     public Quote() {
     }
 
-    public Quote(ArrayList<String> tags, String author, String likes, String text) {
-        this.tags = tags;
+    public Quote( String author, String likes, String text) {
+
         this.author = author;
         this.likes = likes;
         this.text = text;
