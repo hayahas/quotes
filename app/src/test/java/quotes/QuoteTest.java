@@ -10,73 +10,67 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static quotes.QouteWrapper.getQuotesFromApi;
+
+
 public class QuoteTest {
-//    @Test void toStringReturnRandomQuoteAndItsAuthor(){
-//
-//        Gson gson = new Gson();
-//        Quote[] q;
-//        Quote myQuote=null;
-//        try(BufferedReader bufferedReader= new BufferedReader(new FileReader("app/src/main/resources/recentquotes.json"));){
-//            q=gson.fromJson(bufferedReader, Quote[].class);
-//            if(q.length != 0 && q != null ){
-//                int random =  (int)Math.floor(Math.random() * (q.length - 0 + 1) + 0);
-//                myQuote=q[random];
-//            }
-//        }catch (IOException e){
-//            e.printStackTrace();
-//            throw new RuntimeException(e);
-//        }
-//        String result= myQuote.toString();
-//        String otpt = "Qoute : " + myQuote.getText() + "\nAuthor : " + myQuote.getAuthor();
-//        Assertions.assertEquals(otpt,result);
-//    }
+    @Test void toStringReturnRandomQuoteAndItsAuthor(){
 
-    @Test void quoteWrapperToString_returnsRandomQuoteAndItsAuthorAndOtherData() throws IOException {
         Gson gson = new Gson();
-        URL pokeUrl= new URL("https://favqs.com/api/qotd");
-
-        HttpURLConnection pokeUrlConnection = (HttpURLConnection) pokeUrl.openConnection();
-
-        pokeUrlConnection.setRequestMethod("GET");
-
-        InputStreamReader reader = new InputStreamReader(pokeUrlConnection.getInputStream());
-        BufferedReader bufferedReader=new BufferedReader(reader);
-        String pokeData=bufferedReader.readLine();
-
-        gson=new GsonBuilder().setPrettyPrinting().create();
-        QouteWrapper newQuote = gson.fromJson(pokeData, QouteWrapper.class);
-
-        File filePth = new File("app/src/main/resources/quoteFromApi.json");
-
-        try(FileWriter fileWriter= new FileWriter(filePth)){
-
-            gson.toJson(newQuote, fileWriter);
-
-
-        }catch (IOException | JsonParseException e) {
-
-            e.printStackTrace();
-            throw new RuntimeException(e);
-
-        }
-        QouteWrapper qw;
-        try(BufferedReader bufferedReader3 = new BufferedReader(new FileReader("app/src/main/resources/quoteFromApi.json"))) {
-            qw=gson.fromJson(bufferedReader3, QouteWrapper.class);
-
-            System.out.println(qw);
-
-
-        } catch (IOException | JsonParseException e) {
+        Quote[] q;
+        Quote myQuote=null;
+        try(BufferedReader bufferedReader= new BufferedReader(new FileReader("src/test/resources/recentquotes.json"));){
+            q=gson.fromJson(bufferedReader, Quote[].class);
+            if(q.length != 0 && q != null ){
+                int random =  (int)Math.floor(Math.random() * (q.length - 0 + 1) + 0);
+                myQuote=q[random];
+            }
+        }catch (IOException e){
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        Quote q =new Quote();
-        String result= qw.toString();
-        String otpt = "Id : " + q.getId() + "\nQoute : " + q.getBody() + "\nAuthor : " + q.getAuthor() +"\nUrl: " + q.getUrl();
-
-        Assertions.assertEquals(otpt,result);
+        String result= myQuote.toString();
+        String otpt = "Qoute : " + myQuote.getText() + "\nAuthor : " + myQuote.getAuthor();
+        assertEquals(otpt,result);
     }
 
+    @Test
+    public void testGetQuotesFromApi() {
+
+        try {
+            QouteWrapper newQuoteWrapper = QouteWrapper.getQuotesFromApi();
+            assertNotNull(newQuoteWrapper);
+            Quote newQuote = newQuoteWrapper.getQuote();
+            assertNotNull(newQuote);
+        } catch (Exception e) {
+            Assertions.fail("Exception thrown: " + e.getMessage());
+        }
     }
+
+    @Test
+    public void testFileUpdate() throws IOException {
+        List<Quote> quoteList = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            QouteWrapper newQuoteWrapper = getQuotesFromApi();
+            Quote newQuote = newQuoteWrapper.getQuote();
+            quoteList.add(newQuote);
+        }
+
+        String filePath = "src/test/resources/quoteFromApi.json";
+
+
+        QouteWrapper.saveQuotesToJson(quoteList, filePath);
+
+        QouteWrapper updatedQuotes = getQuotesFromApi();
+        assertNotNull(updatedQuotes);
+
+    }
+
+}
